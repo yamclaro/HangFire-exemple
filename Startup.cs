@@ -1,5 +1,6 @@
 
 using Hangfire;
+using Hangfire.SqlServer;
 using HangFire2.Models;
 using Microsoft.OpenApi.Models;
 using System;
@@ -22,12 +23,26 @@ public class Startup
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "HangfireApplication", Version = "v1" });
         });
+         string connStr = (Configuration.GetConnectionString("DBConnection"));
          services.AddScoped<IjobTestService, JobTestService>();
-        services.AddHangfire(x =>
-        {
-            x.UseSqlServerStorage(Configuration.GetConnectionString("DBConnection"));
-        });
-        services.AddHangfireServer();
+         services.AddHangfireServer();
+         services.AddHangfire(x =>
+            x.UseColouredConsoleLogProvider()
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseResultsInContinuations()
+                .UseSqlServerStorage(connStr, new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    QueuePollInterval = TimeSpan.Zero,
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(1),
+                    UseRecommendedIsolationLevel = true,
+                    UsePageLocksOnDequeue = true,
+                    DisableGlobalLocks = true,
+                    EnableHeavyMigrations = true
+                }));
+      
     }
     
 

@@ -33,7 +33,8 @@ public class JobTestController : ControllerBase
     [HttpGet("/ReccuringJob")]
     public ActionResult CreateReccuringJob()
     {
-        _recurringJobManager.AddOrUpdate("jobId", () => _jobTestService.ReccuringJob(), TimeSpan.FromSeconds(1220));
+       
+        _recurringJobManager.AddOrUpdate("Teste", () => _jobTestService.ReccuringJob(), Cron.Monthly(5));
         return Ok();
     }
     [HttpGet("/ContinuationJob")]
@@ -44,5 +45,6 @@ public class JobTestController : ControllerBase
                 
         return Ok();
     }
+
     }
 }
